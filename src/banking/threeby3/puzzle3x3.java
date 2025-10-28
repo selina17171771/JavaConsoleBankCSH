@@ -128,8 +128,8 @@ public class puzzle3x3 {
 	//플레이
 	private void gameLoop(Scanner sc) {
 		int moveCount = 0;
+		printBoard();
 		while (true) {
-			printBoard();
 			
 			if (isSolved()) {
 				System.out.println("퍼즐완성. 총 이동: " + moveCount +"회");
@@ -148,6 +148,8 @@ public class puzzle3x3 {
 			if (key == 'a' ||key == 'd'||key == 'w'||key == 's') {
 				if (tryMove(key)) {
 					moveCount++;
+					printBoard();
+
 				} else {
 					System.out.println("이동 불가 상태입니다. (가장자리)");
 				}
