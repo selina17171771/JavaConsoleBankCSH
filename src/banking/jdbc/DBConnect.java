@@ -2,9 +2,23 @@ package banking.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class DBConnect {
-	public static void main(String[] args) {
+    private static final String DRIVER = "oracle.jdbc.OracleDriver";
+    private static final String URL    = "jdbc:oracle:thin:@localhost:1521:XE"; // 환경에 맞게
+    private static final String USER   = "hr";
+    private static final String PASS   = "1234";
+
+    static {
+        try { Class.forName(DRIVER); }
+	        catch (ClassNotFoundException e) { throw new RuntimeException("Oracle Driver load fail", e); }
+	    }
+
+	public static Connection getConnection() throws SQLException {
+	    return DriverManager.getConnection(URL, USER, PASS);
+	}
+}
 
 		/*
 		  JDBC 프로그래밍 절차 
@@ -21,22 +35,21 @@ public class DBConnect {
 		  4. 우리는 반환된 Connection 인스턴스를 통해
 		  	데이터베이스 작업을 처리할 수 있다. 
 		 */
-		try{
-			Class.forName("oracle.jdbc.OracleDriver");
-			String url = "jdbc:oracle:thin:@localhost:1521:xe";
-			String id = "hr";
-			String pass = "1234";
-			
-			Connection con = DriverManager.getConnection(url, id, pass);
-			if(con!=null) {
-				System.out.println("Oracle 연결성공");
-			}
-			else {
-				System.out.println("Oracle 연결실패");
-			}
-		}catch(Exception e) {
-			System.out.println("Oracle 연결시 예외발생");
-			e.printStackTrace();
-		}
-	}
-}
+//		try{
+//			Class.forName("oracle.jdbc.OracleDriver");
+//			String url = "jdbc:oracle:thin:@localhost:1521:xe";
+//			String id = "hr";
+//			String pass = "1234";
+//			
+//			Connection con = DriverManager.getConnection(url, id, pass);
+//			if(con!=null) {
+//				System.out.println("Oracle 연결성공");
+//			}
+//			else {
+//				System.out.println("Oracle 연결실패");
+//			}
+//		}catch(Exception e) {
+//			System.out.println("Oracle 연결시 예외발생");
+//			e.printStackTrace();
+//		}
+
