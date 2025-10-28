@@ -2,12 +2,7 @@ package banking;
 
 import java.util.Scanner;
 
-/**
- * 프로그램 시작점 (main 포함)
- * - 사용자가 종료(5)할 때까지 반복
- */
 public class BankingSystemMain implements ICustomDefine {
-
     public static void main(String[] args) {
         AccountManager manager = new AccountManager();
         Scanner sc = new Scanner(System.in);
@@ -15,13 +10,10 @@ public class BankingSystemMain implements ICustomDefine {
         while (true) {
             try {
                 manager.showMenu();
-                String line = sc.nextLine().trim();
-                if (line.isEmpty()) continue;
+                String line = sc.nextLine().trim();     // 문자를 입력하면 아래 parseInt에서 예외 발생
+                int choice = Integer.parseInt(line);     // try~catch로 문자 입력 방지
 
-                int choice = Integer.parseInt(line);
-
-                // 메뉴 유효성 체크 (1~5)
-                if (choice < MAKE || choice > EXIT) {
+                if (choice < MAKE || choice > EXIT) {    // 개발자 정의 예외(지정 정수 이외)
                     throw new MenuSelectException("메뉴는 1~5 사이의 값만 가능합니다.");
                 }
 
@@ -31,18 +23,20 @@ public class BankingSystemMain implements ICustomDefine {
                     case WITHDRAW-> manager.withdrawMoney();
                     case INQUIRE -> manager.showAccInfo();
                     case EXIT    -> {
-                        System.out.println("프로그램을 종료합니다.");
+                        System.out.println("프로그램종료");
                         sc.close();
                         return;
                     }
                 }
             } catch (NumberFormatException e) {
-                System.out.println("숫자를 입력해주세요.");
+                System.out.println("숫자만 입력할 수 있습니다.");
+                System.out.println(); // 보기 좋게 줄바꿈
             } catch (MenuSelectException e) {
                 System.out.println(e.getMessage());
+                System.out.println();
             } catch (Exception e) {
-                // 예기치 못한 오류도 종료되지 않게 보호
                 System.out.println("오류가 발생했지만 프로그램은 계속됩니다: " + e.getMessage());
+                System.out.println();
             }
         }
     }

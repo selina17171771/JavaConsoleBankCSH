@@ -1,10 +1,6 @@
 package banking;
 
-/**
- * 계좌의 공통 정보 (1단계 핵심 클래스)
- * - 계좌번호(String), 이름(String), 잔액(int)
- */
-public class Account {
+public abstract class Account {
     protected String accountNo;
     protected String owner;
     protected int balance;
@@ -16,20 +12,19 @@ public class Account {
     }
 
     public String getAccountNo() { return accountNo; }
+    public String getOwner() { return owner; }
+    public int getBalance() { return balance; }
 
-    public void deposit(int amount) {
-        // 1단계 제약: 금액 오류 검증 생략(0 이상만 테스트)
-        balance += amount;
-    }
+    /** 입금(이자 계산)은 하위 클래스에서 구현 */
+    public abstract void deposit(int amount);
 
+    /** 출금(이자 없음) */
     public boolean withdraw(int amount) {
-        // 1단계 제약: 음수/잔액검사 등 추가처리 생략(0 이상만 테스트)
-        if (amount > balance) return false; // 간단히 잔액부족만 체크
+        if (amount > balance) return false;
         balance -= amount;
         return true;
     }
 
-    public void showInfo() {
-        System.out.printf("[계좌번호] %s  [이름] %s  [잔액] %,d원%n", accountNo, owner, balance);
-    }
+    /** 계좌정보출력(포맷 고정) - 하위에서 구체값 채움 */
+    public abstract void showInfoBlock();
 }
