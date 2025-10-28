@@ -1,16 +1,39 @@
-package banking;
+package banking.threeby3;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Scanner;
 import java.util.Set;
+
+//obj 시작시 자동로드 + 종료시 저장
 
 public class AccountManager implements ICustomDefine {
 
     /* 저장소: 배열 -> HashSet */
-    private final Set<Account> accounts = new HashSet<>();
-
+	// 삽입순서를 유지하는 LinkedHashSet 사용
+    private final Set<Account> accounts = new LinkedHashSet<>();
     private final Scanner sc = new Scanner(System.in);
+    
+    //파일명
+    private static final String FILE_OBJ = "src/banking6/AccountInfo.obj";
+    private static final String FILE_TEXT = "src/banking6/AutoSaveAccount.txt";
+    
+    private AutoSaver autoSaver;
+    
+    public AccountManager() {
+    	loadFromFile();
+    }
 
     /* ===== 메뉴 출력(스타일 유지, 삭제 메뉴 추가) ===== */
     public void showMenu() {
@@ -20,19 +43,138 @@ public class AccountManager implements ICustomDefine {
         System.out.println("3.출\t금");
         System.out.println("4.계좌정보출력");
         System.out.println("5.계좌정보삭제");
-        System.out.println("6.프로그램종료");
+        System.out.println("6.저장옵션");
+        System.out.println("7.프로그램종료");
+        System.out.println("8. 3X3 게임 실행");
         System.out.print("선택:");
     }
+    
+    public void showSaveOptionMenu() {
+    	System.out.println("-----저장옵션-----");
+    	System.out.println("1. 자동저장On");
+    	System.out.println("2. 자동저장Off");
+    	System.out.println("선택: ");
+    }
+    
+    public void startAutoSave() {
+    	if (autoSaver != null && autoSaver.isAlive()) {
+    		System.out.println("이미 자동저장이 실행중입니다.");
+    		System.out.println();
+    		return;
+    	}
+    	autoSaver = new AutoSaver(this);
+    	autoSaver.start();
+    	System.out.println("자동저장을 시작했습니다.");
+    	System.out.println();
+    }
+    
+    public void stopAutoSave() {
+    	if (autoSaver == null && !autoSaver.isAlive()) {
+    		System.out.println("자동저장이 실행중이 아닙니다.");
+    		System.out.println();
+    		return;
+    	}
 
+    	autoSaver.interrupt(); // 강제종료 X, 깨우는 신호
+    	try {
+    		autoSaver.join(1000);
+    	}catch (InterruptedException ignored) {}
+    	System.out.println("자동저장을 중지했습니다.");
+    	System.out.println();
+    }
+    
+    public void autoSaveToText() {
+    	Account[] snapshot;
+    	synchronized (accounts) {
+			snapshot = accounts.toArray(new Account[0]);
+		}
+    	
+    	try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_TEXT, false))) {
+    		for (Account a : snapshot) {
+                bw.write(a.infoBlock()); // 요청한 출력 포맷 그대로
+            }
+            bw.flush();
+        } catch (IOException e) {
+            // 자동저장 실패 시 조용히 넘어가거나 로깅
+        }
+    	
+    }
+
+    /* ===== 파일 저장 ===== */
+    public void saveToFile() {
+    	/*
+    	 저장(직렬화)
+    	 객체 -> 바이트 -> 파일
+    	 */
+    	try (ObjectOutputStream oos = new ObjectOutputStream(
+    			new BufferedOutputStream(new FileOutputStream(FILE_OBJ)))){
+    		oos.writeObject(accounts);
+    		oos.flush();
+    		System.out.println("계좌 정보가 저장되었습니다. ");
+    	}catch (IOException e) {
+    		System.out.println("저장 중 오류 : " + e.getMessage());
+    	}
+    }
+   
+    /* ===== 파일 로드 ===== */
+    public void loadFromFile() {
+    	File f = new File(FILE_OBJ);
+    	if (!f.exists()) {
+    		System.out.println(FILE_OBJ + " 파일없음");
+    		return;
+    	}
+    	/*
+   	 	읽기 (역직렬화)
+   	 	바이트 -> 객체복원
+    	 */
+    	 try (ObjectInputStream ois = new ObjectInputStream(
+    	            new BufferedInputStream(new FileInputStream(f)))) {
+    	        Object obj = ois.readObject(); //직렬화된 객체 읽어오기
+    	        if (obj instanceof Set) { //obj가 Set인지 확인
+    	            Set<Account> loaded = (Set<Account>) obj; //캐스팅하기
+
+    	            // 핵심: 메모리 컬렉션은 항상 LinkedHashSet 유지
+    	            synchronized (accounts) {
+    	                accounts.clear(); //기존 메모리안에 계좌목록 삭제, 스레드 안정성을 위해 synchronized로 잠금처리
+    	                // loaded가 HashSet이든 뭐든, 그 "현재 반복 순서" 그대로 옮겨 담음
+    	                //새 Linkedhashset을 만들면서 loaded의 내용을 그대로 복사
+    	                // 저장된 iteration order(반복순서) 유지
+    	                accounts.addAll(new LinkedHashSet<>(loaded));
+    	            }
+    	            System.out.println("[안내] 저장된 계좌 정보를 불러왔습니다.");
+    	        }
+    	    } catch (IOException | ClassNotFoundException e) {
+    	        System.out.println("[안내] 저장파일을 불러오지 못했습니다: " + e.getMessage());
+    	    }
+    }
+    
+    
+    
     /* ===== 계좌개설: Set 중복 처리(equals/hashCode) ===== */
+    /* ===== 저장옵션 ===== */
+    public void saveOption() {
+    	System.out.println("***자동저장을 시작합니다***");
+    	System.out.println("저장 옵션을 선택하세요.");
+    	System.out.println("1. 자동저장On, 2.자동저장Off");
+        System.out.print("선택:");
+        int option = parseIntLine();
+
+    }
     public void makeAccount() {
         System.out.println("***신규계좌개설***");
         System.out.println("-----계좌선택------");
         System.out.println("1.보통계좌");
         System.out.println("2.신용신뢰계좌");
+        System.out.println("3.특판계좌");
         System.out.print("선택:");
         int type = parseIntLine(); // 문자 입력시 재입력
-
+        
+        
+        while(!(type == 1 || type == 2 || type == 3)) {
+        	System.out.println("다시 입력하시오. ");
+            type = parseIntLine(); // 문자 입력시 재입력
+        }
+        	
         System.out.print("계좌번호: ");
         String accNo = readNonEmpty();
 
@@ -61,7 +203,10 @@ public class AccountManager implements ICustomDefine {
                 }
             };
             newAcc = new HighCreditAccount(accNo, owner, balance, baseRate, extra);
-        } else {
+        } else if (type == 3) {
+        	newAcc = new specialAccount(accNo, owner, balance, baseRate);
+        } 
+        else {
             System.out.println("계좌 종류 선택이 올바르지 않습니다.");
             System.out.println();
             return;
@@ -172,15 +317,17 @@ public class AccountManager implements ICustomDefine {
     /* ===== 계좌정보출력 ===== */
     public void showAccInfo() {
         System.out.println("***계좌정보출력***");
-        if (accounts.isEmpty()) {
-            System.out.println("등록된 계좌가 없습니다.");
-            System.out.println("전체계좌정보 출력이 완료되었습니다.");
-            System.out.println();
-            return;
-        }
-        for (Account a : accounts) {
-            a.showInfoBlock();
-        }
+        Account[] snapshot;
+        synchronized (accounts) {
+            if (accounts.isEmpty()) {
+                System.out.println("등록된 계좌가 없습니다.");
+                System.out.println("전체계좌정보 출력이 완료되었습니다.");
+                System.out.println();
+                return;
+            }
+            snapshot = accounts.toArray(new Account[0]);
+		}
+        for (Account a : snapshot) a.showInfoBlock();
         System.out.println("전체계좌정보 출력이 완료되었습니다.");
         System.out.println();
     }

@@ -1,6 +1,6 @@
-package banking;
+package banking4;
 
-/** 신용계좌: 잔고 + (잔고*기본이자%) + (잔고*추가이자%) + 입금액 */
+/* 신용계좌: 잔고 + (잔고*기본이자%) + (잔고*추가이자%) + 입금액 */
 public class HighCreditAccount extends NormalAccount {
     protected int creditRate; // ICustomDefine.A/B/C
 

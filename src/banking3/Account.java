@@ -1,6 +1,4 @@
-package banking;
-
-import java.util.Objects;
+package banking3;
 
 public abstract class Account {
     protected String accountNo;
@@ -17,30 +15,16 @@ public abstract class Account {
     public String getOwner() { return owner; }
     public int getBalance() { return balance; }
 
-    /** 입금(이자 계산)은 하위 클래스에서 구현 */
+    /* 입금(이자 계산)은 하위 클래스에서 구현 */
     public abstract void deposit(int amount);
 
-    /** 출금(이자 없음) */
+    /* 출금(이자 없음) */
     public boolean withdraw(int amount) {
         if (amount > balance) return false;
         balance -= amount;
         return true;
     }
 
-    /** 계좌정보출력(포맷 고정) - 하위에서 구체값 채움 */
+    /* 계좌정보출력(포맷 고정) - 하위에서 구체값 채움 */
     public abstract void showInfoBlock();
-    
-    @Override
-    public boolean equals(Object obj) {
-    	// TODO Auto-generated method stub
-    	if (this == obj) return true;
-    	if (! (obj instanceof Account acc)) return false;
-    	return Objects.equals(this.accountNo, acc.accountNo);
-    }
-    
-    @Override
-    public int hashCode() {
-    	// TODO Auto-generated method stub
-    	return Objects.hash(accountNo);
-    }
 }

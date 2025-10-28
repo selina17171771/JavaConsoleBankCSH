@@ -1,7 +1,9 @@
-package banking;
+package banking5;
 
-/** 보통계좌: 잔고 + (잔고*기본이자%) + 입금액 */
+/* 보통계좌: 잔고 + (잔고*기본이자%) + 입금액 */
 public class NormalAccount extends Account {
+	private static final long serialVersionUID = 1L;
+	
     protected int interestRate; // % 정수
 
     public NormalAccount(String accountNo, String owner, int balance, int interestRate) {

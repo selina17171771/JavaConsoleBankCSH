@@ -1,6 +1,6 @@
-package banking;
+package banking3;
 
-/** 보통계좌: 잔고 + (잔고*기본이자%) + 입금액 */
+/* 보통계좌: 잔고 + (잔고*기본이자%) + 입금액 */
 public class NormalAccount extends Account {
     protected int interestRate; // % 정수
 

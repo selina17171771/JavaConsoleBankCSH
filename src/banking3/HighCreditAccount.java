@@ -1,4 +1,4 @@
-package banking;
+package banking3;
 
 /** 신용계좌: 잔고 + (잔고*기본이자%) + (잔고*추가이자%) + 입금액 */
 public class HighCreditAccount extends NormalAccount {
@@ -28,8 +28,8 @@ public class HighCreditAccount extends NormalAccount {
     }
 
     private String gradeText() {
-        if (creditRate == ICustomDefine.A) return "A";
-        if (creditRate == ICustomDefine.B) return "B";
-        return "C";
+    	 if (creditRate == ICustomDefine.A) return "A";
+    	 if (creditRate == ICustomDefine.B) return "B";
+    	 return "C";
     }
 }

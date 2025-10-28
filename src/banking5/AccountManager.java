@@ -1,16 +1,32 @@
-package banking;
+package banking5;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
 
+//obj 시작시 자동로드 + 종료시 저장
+
 public class AccountManager implements ICustomDefine {
 
     /* 저장소: 배열 -> HashSet */
     private final Set<Account> accounts = new HashSet<>();
-
     private final Scanner sc = new Scanner(System.in);
+    
+    //파일명
+    private static final String FILE_NAME = "AccountInfo.obj";
+    
+    public AccountManager() {
+    	loadFromFile();
+    }
 
     /* ===== 메뉴 출력(스타일 유지, 삭제 메뉴 추가) ===== */
     public void showMenu() {
@@ -23,7 +39,39 @@ public class AccountManager implements ICustomDefine {
         System.out.println("6.프로그램종료");
         System.out.print("선택:");
     }
-
+    /* ===== 파일 저장 ===== */
+    public void saveToFile() {
+    	try (ObjectOutputStream oos = new ObjectOutputStream(
+    			new BufferedOutputStream(new FileOutputStream(FILE_NAME)))){
+    		oos.writeObject(accounts);
+    		oos.flush();
+    		System.out.println("계좌 정보가 저장되었습니다. ");
+    	}catch (IOException e) {
+    		System.out.println("저장 중 오류 : " + e.getMessage());
+    	}
+    }
+   
+    /* ===== 파일 로드 ===== */
+    public void loadFromFile() {
+    	File f = new File(FILE_NAME);
+    	if (!f.exists()) {
+    		System.out.println(FILE_NAME + " 파일없음");
+    		return;
+    	}
+    	try (ObjectInputStream ois = new ObjectInputStream(
+                new BufferedInputStream(new FileInputStream(f)))) {
+            Object obj = ois.readObject();
+            if (obj instanceof Set) {
+                accounts.clear();
+                accounts.addAll((Set<Account>) obj);
+                System.out.println("[안내] 저장된 계좌 정보를 불러왔습니다.");
+            }
+            
+    	}catch ( IOException | ClassNotFoundException e) {
+    		System.out.println("저장 파일을 불러오지 못했습니다. " + e.getMessage());
+    	}
+    }
+    
     /* ===== 계좌개설: Set 중복 처리(equals/hashCode) ===== */
     public void makeAccount() {
         System.out.println("***신규계좌개설***");
