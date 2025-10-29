@@ -14,7 +14,6 @@ import java.util.Scanner;
 import java.util.Set;
 
 //obj 시작시 자동로드 + 종료시 저장
-
 public class AccountManager implements ICustomDefine {
 
     /* 저장소: 배열 -> HashSet */
