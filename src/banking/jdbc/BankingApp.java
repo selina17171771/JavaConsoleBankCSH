@@ -7,7 +7,8 @@ import java.util.Scanner;
 
 public class BankingApp {
     public static void main(String[] args) {
-        try (Connection con = DBConn.getConnection(); Scanner sc = new Scanner(System.in)) {
+        try (Connection con = DBConn.getConnection();
+        	Scanner sc = new Scanner(System.in)) {
             con.setAutoCommit(false); // 트랜잭션 직접 제어
             BankingDAO dao = new BankingDAO(con);
 

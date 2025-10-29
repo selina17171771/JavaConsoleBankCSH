@@ -149,7 +149,6 @@ public class AccountManager implements ICustomDefine {
     
     
     
-    /* ===== 계좌개설: Set 중복 처리(equals/hashCode) ===== */
     /* ===== 저장옵션 ===== */
     public void saveOption() {
     	System.out.println("***자동저장을 시작합니다***");
@@ -159,6 +158,7 @@ public class AccountManager implements ICustomDefine {
         int option = parseIntLine();
 
     }
+    /* ===== 계좌개설: Set 중복 처리(equals/hashCode) ===== */
     public void makeAccount() {
         System.out.println("***신규계좌개설***");
         System.out.println("-----계좌선택------");
