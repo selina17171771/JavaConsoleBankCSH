@@ -1,5 +1,9 @@
 package banking.jdbc;
-
+/*
+ connection "DB와의 세션을 대표하는 핸들"
+  : 네트워크 연결(소켓), 사용자인증정보, 트랜잭션상태, 세션 설정등을 내부에 같고 있음
+  - preparedStatement, CallableStatement, ResultSet 같은 것들을 만들고 다룸.
+ */
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
